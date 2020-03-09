@@ -190,10 +190,6 @@ def generate_word_cloud():
 
     years = data['date'].str[0: 4].unique()
 
-    global output_dir
-    output_dir = os.path.join(output_dir, username)
-    check_dir(output_dir)
-
     if export_yearly:
         yearly_image_path = os.path.join(output_dir, "yearly")
         check_dir(yearly_image_path)
@@ -232,10 +228,16 @@ def main():
     global export_monthly
     global verbose
     global export_quality
+    global output_dir
 
     args = parser.parse_args()
     username = args.username
 
+    # create output dir
+    check_dir(output_dir)
+
+    # create user dir
+    output_dir = os.path.join(output_dir, username)
     check_dir(output_dir)
 
     if args.count is not None and args.count.isnumeric():
