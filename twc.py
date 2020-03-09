@@ -84,6 +84,10 @@ def remove_mentions(tweet):
 def remove_reserved_words(tweet):
     return re.sub(r'^(RT|FAV)', '', tweet)
 
+def remove_punctuations(tweet):
+    return re.sub(
+        r'''[!()-\[\]{};:'"\,<>.\/?؟@#$%^&*_~=\\|`]''', '', tweet)
+
 # remove enoji and some unicode chars from tweet text
 def remove_emoji(tweet):
     emoji_pattern = re.compile("["
@@ -120,6 +124,7 @@ def clean_tweet(tweet):
     tweet = remove_links(tweet)
     tweet = remove_mentions(tweet)
     tweet = remove_emoji(tweet)
+    tweet = remove_punctuations(tweet)
     tweet = remove_reserved_words(tweet)
     normalizer = Normalizer()
     tweet = normalizer.normalize(tweet)
