@@ -11,6 +11,9 @@ A tool to generate word cloud images from twitter user timeline.
 
 # How to run :
 
+- `pip install virtualenv` - Insatll virtualenv if you don't have
+- `virtualenv venv -p python3.7` - Create virtual environment with python 3.7 (must be >=3.5)
+- `source venv/bin/activate` - Activate virtual environment
 - `pip install -r requirements.txt` (Install dependencies)
 - `python twc.py -u twitter_username` - Scrape all the Tweets from user's timeline and genarate word cloud images. You can find images in this path `output/twitter_username/`.
 - `python twc.py -u twitter_username -c 100` - Scrape all the Tweets from user's timeline and genarate word cloud images with 100 words.
