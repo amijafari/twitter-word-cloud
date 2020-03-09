@@ -21,14 +21,14 @@ from bidi.algorithm import get_display
 punctuation_list = list(punctuation)
 
 parser = argparse.ArgumentParser(description='Twitter word cloud generator')
-parser.add_argument("-u", "--username", help="twiter username", required=True)
-parser.add_argument("-f", "--font", help="font name")
-parser.add_argument("-c", "--count", help="Number of words to show on word cloud image")
+parser.add_argument("-u", "--username", help="Twiter username", required=True)
+parser.add_argument("-f", "--font", help="Font name. Default: (random)")
+parser.add_argument("-c", "--count", help="Number of words to show on word cloud image. Default: 200")
 parser.add_argument("-l", "--limit", help="Number of tweets to pull")
-parser.add_argument("-y", "--yearly", help="Export yearly word cloud", action='store_true')
-parser.add_argument("-m", "--monthly", help="Number monthly word cloud", action='store_true')
-parser.add_argument("-v", "--verbose", help="Print more messages", action='store_true')
-parser.add_argument("-q", "--quality", help="Set output quality 1 (high), 2 (medium), 3 (low)")
+parser.add_argument("-y", "--yearly", help="Export yearly word cloud. Default: false", action='store_true')
+parser.add_argument("-m", "--monthly", help="Export monthly word cloud. Default: false", action='store_true')
+parser.add_argument("-v", "--verbose", help="Print more messages. Default: false", action='store_true')
+parser.add_argument("-q", "--quality", help="Set output quality 1 (high), 2 (medium), 3 (low). Default: 3")
 
 username = ""
 max_words = 200
