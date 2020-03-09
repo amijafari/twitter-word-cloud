@@ -126,6 +126,8 @@ def clean_tweet(tweet):
     tweet = remove_reserved_words(tweet)
     normalizer = Normalizer()
     tweet = normalizer.normalize(tweet)
+    # replace arabic ي with persian
+    tweet = tweet.replace('ي', 'ی')
     # removes verbs such as می‌شود or نمی‌گویند
     tweet = re.sub(r'ن?می[‌]\S+', '', tweet)
     tokens = word_tokenize(tweet)
