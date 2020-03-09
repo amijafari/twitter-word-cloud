@@ -28,6 +28,7 @@ parser.add_argument("-l", "--limit", help="Number of tweets to pull")
 parser.add_argument("-y", "--yearly", help="Export yearly word cloud", action='store_true')
 parser.add_argument("-m", "--monthly", help="Number monthly word cloud", action='store_true')
 parser.add_argument("-v", "--verbose", help="Print more messages", action='store_true')
+parser.add_argument("-q", "--quality", help="Set output quality 1 (high), 2 (medium), 3 (low)")
 
 username = ""
 max_words = 200
@@ -41,6 +42,7 @@ image_file_extension = '.png'
 export_yearly = False
 export_monthly = False
 verbose = False
+export_quality = 3
 
 
 def select_a_font():
@@ -147,7 +149,7 @@ def draw_cloud(cleantweets, image_path, show_image=False):
     if verbose:
         print(dic.most_common(max_words))
     
-    twitter_mask = np.array(Image.open("twitter-logo.png"))
+    twitter_mask = np.array(Image.open(f'twitter-logo-q{export_quality}.png'))
     font_path = select_a_font()
     wordcloud = WordCloud(
         font_path=font_path,
@@ -229,6 +231,7 @@ def main():
     global export_yearly
     global export_monthly
     global verbose
+    global export_quality
 
     args = parser.parse_args()
     username = args.username
@@ -237,6 +240,9 @@ def main():
 
     if args.count is not None and args.count.isnumeric():
         max_words = int(args.count)
+
+    if args.quality is not None and args.quality.isnumeric():
+        export_quality = args.quality
 
     limit = args.limit
     font_name = args.font
