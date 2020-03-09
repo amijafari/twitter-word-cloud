@@ -23,9 +23,11 @@ punctuation_list = list(punctuation)
 parser = argparse.ArgumentParser(description='Twitter word cloud generator')
 parser.add_argument("-u", "--username", help="twiter username", required=True)
 parser.add_argument("-f", "--font", help="font name")
-parser.add_argument(
-    "-c", "--count", help="Number of words to show on word cloud image")
+parser.add_argument("-c", "--count", help="Number of words to show on word cloud image")
 parser.add_argument("-l", "--limit", help="Number of tweets to pull")
+parser.add_argument("-y", "--yearly", help="Export yearly word cloud", action='store_true')
+parser.add_argument("-m", "--monthly", help="Number monthly word cloud", action='store_true')
+parser.add_argument("-v", "--verbose", help="Print more messages", action='store_true')
 
 username = ""
 max_words = 200
@@ -36,6 +38,9 @@ font_name = ""
 output_dir = "output"
 fonts_dir = "fonts"
 image_file_extension = '.png'
+export_yearly = False
+export_monthly = False
+verbose = False
 
 
 def select_a_font():
@@ -44,17 +49,19 @@ def select_a_font():
 
     fonts = [file_name for file_name in os.listdir(
         fonts_dir) if os.path.isfile(os.path.join(fonts_dir, file_name)) and file_name.endswith(".ttf")]
+    
     if len(fonts) > 0:
         font_index = randint(0, len(fonts)-1)
         return os.path.join(fonts_dir, fonts[font_index])
+    
     return ""
-
 
 def export_tweets():
     if os.path.isfile(tweets_file_path):
         print(f"{tweets_file_path} is found and it will be processed.")
         print("If you want to get tweets from twitter, remove this file")
         return
+    
     c = twint.Config()
 
     if limit is not None:
@@ -67,23 +74,17 @@ def export_tweets():
     twint.run.Search(c)
 
 # remove links from tweet text
-
-
 def remove_links(tweet):
     return re.sub(
         r'(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})\S*', '', tweet)
 
-
 def remove_mentions(tweet):
     return re.sub(r'@\w*', '', tweet)
-
 
 def remove_reserved_words(tweet):
     return re.sub(r'^(RT|FAV)', '', tweet)
 
 # remove enoji and some unicode chars from tweet text
-
-
 def remove_emoji(tweet):
     emoji_pattern = re.compile("["
                                u"\U0001F600-\U0001F64F"  # emoticons
@@ -110,9 +111,7 @@ def remove_emoji(tweet):
 
     return emoji_pattern.sub(r'', tweet)
 
-# preprocess tweet text (remove links, stopwords, images, mentions and numbers form tweets text )
-
-
+# preprocess tweet text (remove links, stopwords, images, mentions and numbers form tweets text)
 def clean_tweet(tweet):
     tweet = str(tweet)
     tweet = tweet.lower()
@@ -134,14 +133,15 @@ def clean_tweet(tweet):
 
 # draw word cloud from tweets with persian word cloud
 # persian word cloud repo: https://github.com/mehotkhan/persian-word-cloud
-
-
 def draw_cloud(cleantweets, image_path, show_image=False):
     text = " ".join(str(tweet) for tweet in cleantweets)
     text = get_display(arabic_reshaper.reshape(text))
     tokens = word_tokenize(text)
     dic = Counter(tokens)
-    print(dic.most_common(max_words))
+    
+    if verbose:
+        print(dic.most_common(max_words))
+    
     twitter_mask = np.array(Image.open("twitter-logo.jpg"))
     font_path = select_a_font()
     wordcloud = WordCloud(
@@ -159,54 +159,60 @@ def draw_cloud(cleantweets, image_path, show_image=False):
 
     image = wordcloud.to_image()
     wordcloud.to_file(image_path)
+
     if show_image:
         image.show()
+    
     print(f"Generated image {image_path}")
-
 
 def check_dir(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
-
 def generate_word_cloud():
     export_tweets()
+    
     if not os.path.isfile(tweets_file_path):
         print("couldn't get tweets, please try again")
         return False
+    
     data = pd.read_csv(tweets_file_path)
     if 'clean_tweet' not in data.columns:
         data.insert(11, 'clean_tweet', '')
         data['clean_tweet'] = data['tweet'].apply(lambda x: clean_tweet(x))
 
     years = data['date'].str[0: 4].unique()
+
     global output_dir
     output_dir = os.path.join(output_dir, username)
     check_dir(output_dir)
 
-    yearly_image_path = os.path.join(output_dir, "yearly")
-    check_dir(yearly_image_path)
+    if export_yearly:
+        yearly_image_path = os.path.join(output_dir, "yearly")
+        check_dir(yearly_image_path)
 
-    monthly_image_path = os.path.join(output_dir, "monthly")
-    check_dir(monthly_image_path)
+    if export_monthly:
+        monthly_image_path = os.path.join(output_dir, "monthly")
+        check_dir(monthly_image_path)
 
-    # genarate yearly word cloud
-    for year in years:
-        year_data = data[data['date'].str[0: 4] == year]
-        image_path = os.path.join(yearly_image_path, year+image_file_extension)
-        draw_cloud(year_data.clean_tweet.values, image_path)
+    # genarate yearly/monthly word cloud
+    if export_yearly or export_monthly:
+        for year in years:
+            year_data = data[data['date'].str[0: 4] == year]
+            if export_yearly:
+                image_path = os.path.join(yearly_image_path, year+image_file_extension)
+                draw_cloud(year_data.clean_tweet.values, image_path)
 
-        # genarate monthly word cloud
-        months = year_data['date'].str[0: 7].unique()
-        for month in months:
-            month_data = year_data[year_data['date'].str[0: 7] == month]
-            image_path = os.path.join(
-                monthly_image_path, month+image_file_extension)
-            draw_cloud(month_data.clean_tweet.values, image_path)
-
+            # genarate monthly word cloud
+            if export_monthly:
+                months = year_data['date'].str[0: 7].unique()
+                for month in months:
+                    month_data = year_data[year_data['date'].str[0: 7] == month]
+                    image_path = os.path.join(monthly_image_path, month+image_file_extension)
+                    draw_cloud(month_data.clean_tweet.values, image_path)
+    
     image_path = os.path.join(output_dir, username+image_file_extension)
     draw_cloud(data.clean_tweet.values, image_path, True)
-
 
 def main():
     global username
@@ -215,6 +221,9 @@ def main():
     global image_file_path
     global limit
     global font_name
+    global export_yearly
+    global export_monthly
+    global verbose
 
     args = parser.parse_args()
     username = args.username
@@ -226,6 +235,9 @@ def main():
 
     limit = args.limit
     font_name = args.font
+    export_yearly = args.yearly
+    export_monthly = args.monthly
+    verbose = args.verbose
 
     tweets_file_path = os.path.join(output_dir, f"{username}.csv")
 
