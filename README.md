@@ -18,4 +18,4 @@ A tool to generate word cloud images from twitter user timeline.
 
 # Sample Output:
 
-![Sample Result](BehrozBakhtiari.png?raw=true)
+![Sample Result](sample.png?raw=true)
