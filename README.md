@@ -2,14 +2,14 @@
 
 A tool to generate word cloud images from twitter user timeline.
 
-# Requirements :
+# Requirements:
 
 - <a href="https://github.com/twintproject/twint">TWINT - Twitter Intelligence Tool</a>
 - <a href="https://github.com/sobhe/hazm">Hazm</a>
 - <a href="https://github.com/amueller/word_cloud">Word Cloud generator</a>
 - <a href="https://github.com/pandas-dev/pandas">Pandas</a>
 
-# how to run :
+# How to run :
 
 - `pip install -r requirements.txt` (Install dependencies)
 - `python twc.py -u twitter_username` - Scrape all the Tweets from user's timeline and genarate word cloud images. You can find images in this path `output/twitter_username/`.
