@@ -1,24 +1,20 @@
-from matplotlib.cbook import get_sample_data
+import sys
+import os
+import re
+
 import argparse
 import twint
-from string import punctuation
 import pandas as pd
-from hazm import *
+from hazm import Normalizer, word_tokenize, word_tokenize
 from wordcloud import WordCloud
-import re
-import sys
 from PIL import Image
 import numpy as np
-from os import path
 import stopwords
 from collections import Counter
-import os
 from random import randint
 from arabic_reshaper import arabic_reshaper
 from bidi.algorithm import get_display
 
-
-punctuation_list = list(punctuation)
 
 parser = argparse.ArgumentParser(description='Twitter word cloud generator')
 parser.add_argument("-u", "--username", help="Twiter username", required=True)
